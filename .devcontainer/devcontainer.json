@@ -1,27 +1,19 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
-	"name": "Debian",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"name": "Desafio MBA IA Evaluation",
 	"image": "mcr.microsoft.com/devcontainers/base:trixie",
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		//python feature
 		"ghcr.io/devcontainers/features/python:1": {
 			"installTools": true,
 			"version": "latest",
 			"tools": ["pip", "pipenv", "poetry"]
 		},
-		//docker outside
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1":{
 			"moby": false
 		},
-		//opencode feature
 		"ghcr.io/devcontainers-extra/features/opencode:1": {},
 		    "ghcr.io/siri404/devcontainer-ai-features/gemini-cli:1": {
-        "version": "latest"
-    },
+        	"version": "latest"
+    	},
 		"ghcr.io/devcontainers/features/common-utils:2": {
 			"installZsh": true,
 			"configureZshAsDefaultShell": true,
@@ -34,14 +26,15 @@
 			"omzPlugins": "https://github.com/z-shell/F-Sy-H https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-completions"
 		},
 		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"amazonwebservices.amazon-q-vscode",
+				"docker.docker",
+				"google.gemini-cli-vscode-ide-companion",
+				"ms-vscode.makefile-tools"
+			]
+		}
 	}
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
 }
