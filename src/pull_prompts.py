@@ -9,26 +9,57 @@ Este script:
 SIMPLIFICADO: Usa serialização nativa do LangChain para extrair prompts.
 """
 
-import logging
 import sys
-import yaml
+from datetime import datetime
 from pathlib import Path
-from langsmith import Client
+from dotenv import load_dotenv
+from langchain import hub
+from langchain_core.prompts.chat import SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from utils import save_yaml, print_section_header
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+load_dotenv()
+
 
 def pull_prompts_from_langsmith():
-    client = Client()
+    print_section_header("Pull de Prompt do LangSmith Hub")
 
-    logging.info("Executando pull do prompt bug_to_user_story_v1 ....")
-    pulled_prompt = client.pull_prompt("leonanluppi/bug_to_user_story_v1")
-    logging.info("Pull finalizado")
+    repo = "leonanluppi/bug_to_user_story_v1"
 
-    logging.info("Salvando prompt na para prompts")
+    print(f"Pulling prompt: {repo}")
+    prompt = hub.pull(repo)
+    print("Pull finalizado")
+
+    system_prompt = None
+    user_prompt = None
+
+    for msg in prompt.messages:
+        if isinstance(msg, SystemMessagePromptTemplate):
+            system_prompt = msg.prompt.template
+        elif isinstance(msg, HumanMessagePromptTemplate):
+            user_prompt = msg.prompt.template
+
+    prompt_data = {
+        "bug_to_user_story_v1": {
+            "description": "Prompt para converter relatos de bugs em User Stories",
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+            "version": "v1",
+            "created_at": datetime.now().strftime("%Y-%m-%d"),
+            "tags": ["bug-analysis", "user-story", "product-management"],
+        }
+    }
+
     prompts_dir = Path("prompts")
     prompts_dir.mkdir(parents=True, exist_ok=True)
-    prompts_dir.joinpath("bug_to_user_story_v1.yml").write_text(yaml.dump(pulled_prompt.model_dump(), default_flow_style=False))
-    logging.info("Operação realizada com sucesso.")
+    output_file = prompts_dir.joinpath("bug_to_user_story_v1.yml")
+
+    success = save_yaml(prompt_data, str(output_file))
+    if not success:
+        print("Erro ao salvar prompt")
+        sys.exit(1)
+
+    print(f"Prompt salvo em: {output_file}")
+    print(f"Operação realizada com sucesso ...")
 
 
 def main():
