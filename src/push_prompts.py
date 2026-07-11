@@ -15,7 +15,7 @@ import sys
 from dotenv import load_dotenv
 from langchain import hub
 from langchain_core.prompts import ChatPromptTemplate
-from utils import load_yaml, check_env_vars, print_section_header
+from utils import load_yaml, print_section_header
 
 load_dotenv()
 
@@ -31,7 +31,26 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
     Returns:
         True se sucesso, False caso contrário
     """
-    ...
+    prompt = prompt_data.get("bug_to_user_story_v2", {})
+
+    chat_prompt = ChatPromptTemplate.from_messages([
+        ("system", prompt["system_prompt"]),
+        ("human", prompt["user_prompt"]),
+    ])
+
+    try:
+        url = hub.push(
+            prompt_name,
+            chat_prompt,
+            new_repo_is_public=True,
+            new_repo_description=prompt.get("description", ""),
+            tags=prompt.get("tags", []),
+        )
+        print(f"Prompt publicado em: {url}")
+        return True
+    except Exception as e:
+        print(f"Erro ao publicar prompt: {e}")
+        return False
 
 
 def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
@@ -44,12 +63,49 @@ def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
     Returns:
         (is_valid, errors) - Tupla com status e lista de erros
     """
-    ...
+    errors = []
+    prompt = prompt_data.get("bug_to_user_story_v2", {})
+
+    if not prompt.get("system_prompt"):
+        errors.append("system_prompt ausente ou vazio")
+
+    if not prompt.get("user_prompt"):
+        errors.append("user_prompt ausente ou vazio")
+
+    return (len(errors) == 0, errors)
 
 
 def main():
     """Função principal"""
-    ...
+    print_section_header("Push de Prompt Otimizado para o LangSmith Hub")
+
+    yaml_file = "prompts/bug_to_user_story_v2.yml"
+    prompt_data = load_yaml(yaml_file)
+
+    if prompt_data is None:
+        print("Erro ao carregar prompt otimizado")
+        sys.exit(1)
+
+    is_valid, errors = validate_prompt(prompt_data)
+    if not is_valid:
+        print("Prompt inválido:")
+        for error in errors:
+            print(f"  - {error}")
+        sys.exit(1)
+
+    username = os.getenv("USERNAME_LANGSMITH_HUB")
+    if not username:
+        print("USERNAME_LANGSMITH_HUB não definida no ambiente.")
+        sys.exit(1)
+
+    prompt_name = f"{username}/bug_to_user_story_v2"
+
+    success = push_prompt_to_langsmith(prompt_name, prompt_data)
+    if not success:
+        print("Erro ao publicar prompt")
+        sys.exit(1)
+
+    print("Prompt publicado com sucesso!")
 
 
 if __name__ == "__main__":
