@@ -25,7 +25,7 @@ def pull_prompts_from_langsmith():
     logging.info("Pull finalizado")
 
     logging.info("Salvando prompt na para prompts")
-    prompts_dir = Path("prompt")
+    prompts_dir = Path("prompts")
     prompts_dir.mkdir(parents=True, exist_ok=True)
     prompts_dir.joinpath("bug_to_user_story_v1.yml").write_text(yaml.dump(pulled_prompt.model_dump(), default_flow_style=False))
     logging.info("Operação realizada com sucesso.")
