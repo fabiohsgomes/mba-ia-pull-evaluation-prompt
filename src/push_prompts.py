@@ -15,7 +15,12 @@ import sys
 from dotenv import load_dotenv
 from langchain import hub
 from langchain_core.prompts import ChatPromptTemplate
-from utils import load_yaml, print_section_header, validate_prompt_structure
+from utils import (
+    check_env_vars,
+    load_yaml,
+    print_section_header,
+    validate_prompt_structure,
+)
 
 load_dotenv()
 
@@ -79,6 +84,10 @@ def main():
     """Função principal"""
     print_section_header("Push de Prompt Otimizado para o LangSmith Hub")
 
+    required_vars = ["USERNAME_LANGSMITH_HUB"]
+    if not check_env_vars(required_vars):
+        sys.exit(1)
+
     yaml_file = "prompts/bug_to_user_story_v2.yml"
     prompt_data = load_yaml(yaml_file)
 
@@ -94,10 +103,6 @@ def main():
         sys.exit(1)
 
     username = os.getenv("USERNAME_LANGSMITH_HUB")
-    if not username:
-        print("USERNAME_LANGSMITH_HUB não definida no ambiente.")
-        sys.exit(1)
-
     prompt_name = f"{username}/bug_to_user_story_v2"
 
     success = push_prompt_to_langsmith(prompt_name, prompt_data)
