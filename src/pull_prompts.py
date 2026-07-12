@@ -9,13 +9,14 @@ Este script:
 SIMPLIFICADO: Usa serialização nativa do LangChain para extrair prompts.
 """
 
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain import hub
 from langchain_core.prompts.chat import SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from utils import save_yaml, print_section_header
+from utils import check_env_vars, save_yaml, print_section_header
 
 load_dotenv()
 
@@ -23,7 +24,12 @@ load_dotenv()
 def pull_prompts_from_langsmith():
     print_section_header("Pull de Prompt do LangSmith Hub")
 
-    repo = "leonanluppi/bug_to_user_story_v1"
+    required_vars = ["USERNAME_LANGSMITH_HUB"]
+    if not check_env_vars(required_vars):
+        sys.exit(1)
+
+    username = os.getenv("USERNAME_LANGSMITH_HUB")
+    repo = f"{username}/bug_to_user_story_v1"
 
     print(f"Pulling prompt: {repo}")
     prompt = hub.pull(repo)
