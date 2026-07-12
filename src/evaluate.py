@@ -273,7 +273,7 @@ def display_results(prompt_name: str, scores: Dict[str, float]) -> bool:
 def main():
     print_section_header("AVALIAÇÃO DE PROMPTS OTIMIZADOS")
 
-    provider = os.getenv("LLM_PROVIDER", "openai")
+    provider = os.getenv("LLM_PROVIDER", "openai").lower()
     llm_model = os.getenv("LLM_MODEL", "gpt-4o-mini")
     eval_model = os.getenv("EVAL_MODEL", "gpt-4o")
 
@@ -291,7 +291,7 @@ def main():
         return 1
 
     client = Client()
-    project_name = os.getenv("LANGCHAIN_PROJECT", "prompt-optimization-challenge-resolved")
+    project_name = os.getenv("LANGSMITH_PROJECT", "prompt-optimization-challenge-resolved")
 
     jsonl_path = "datasets/bug_to_user_story.jsonl"
 
