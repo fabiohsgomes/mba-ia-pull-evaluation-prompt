@@ -15,7 +15,7 @@ import sys
 from dotenv import load_dotenv
 from langchain import hub
 from langchain_core.prompts import ChatPromptTemplate
-from utils import load_yaml, print_section_header
+from utils import load_yaml, print_section_header, validate_prompt_structure
 
 load_dotenv()
 
@@ -55,7 +55,7 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
 
 def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
     """
-    Valida estrutura básica de um prompt (versão simplificada).
+    Valida estrutura básica de um prompt.
 
     Args:
         prompt_data: Dados do prompt
@@ -63,16 +63,16 @@ def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
     Returns:
         (is_valid, errors) - Tupla com status e lista de erros
     """
-    errors = []
-    prompt = prompt_data.get("bug_to_user_story_v2", {})
+    prompt = prompt_data.get("bug_to_user_story_v2")
+    if not prompt:
+        return False, ["Prompt bug_to_user_story_v2 ausente"]
 
-    if not prompt.get("system_prompt"):
-        errors.append("system_prompt ausente ou vazio")
+    is_valid, errors = validate_prompt_structure(prompt)
 
     if not prompt.get("user_prompt"):
         errors.append("user_prompt ausente ou vazio")
 
-    return (len(errors) == 0, errors)
+    return (is_valid and len(errors) == 0, errors)
 
 
 def main():
