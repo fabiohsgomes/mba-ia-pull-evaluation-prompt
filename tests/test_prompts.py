@@ -4,6 +4,7 @@ Testes automatizados para validação de prompts.
 import pytest
 import sys
 from pathlib import Path
+from langchain_core.prompts import ChatPromptTemplate
 
 # Adicionar src ao path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -68,6 +69,15 @@ class TestPrompts:
             error.startswith(MINIMUM_TECHNIQUES_ERROR_PREFIX)
             for error in self.validation_errors
         )
+
+    def test_prompt_template_only_requires_bug_report(self):
+        """Garante que exemplos com chaves literais não sejam tratados como variáveis."""
+        chat_prompt = ChatPromptTemplate.from_messages([
+            ("system", self.system_prompt),
+            ("human", self.prompt_data["user_prompt"]),
+        ])
+
+        assert chat_prompt.input_variables == ["bug_report"]
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
