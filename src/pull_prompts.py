@@ -24,12 +24,7 @@ load_dotenv()
 def pull_prompts_from_langsmith():
     print_section_header("Pull de Prompt do LangSmith Hub")
 
-    required_vars = ["USERNAME_LANGSMITH_HUB"]
-    if not check_env_vars(required_vars):
-        sys.exit(1)
-
-    username = os.getenv("USERNAME_LANGSMITH_HUB")
-    repo = f"{username}/bug_to_user_story_v1"
+    repo = "fabiohsalesgomes/bug_to_user_story_v1"
 
     print(f"Pulling prompt: {repo}")
     prompt = hub.pull(repo)
